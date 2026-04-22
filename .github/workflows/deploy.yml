@@ -1,0 +1,22 @@
+name: Deploy to Linode
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.LINODE_HOST }}
+          username: revol
+          key: ${{ secrets.LINODE_SSH_KEY }}
+          script: |
+            cd ~/stream-player
+            git pull
+            source backend/venv/bin/activate
+            pip install -r backend/requirements.txt -q
+            sudo systemctl restart stream-player

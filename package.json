@@ -1,0 +1,22 @@
+{
+  "name": "stream-player",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "lint-staged": {
+    "frontend/src/**/*.{ts,vue}": "prettier --write",
+    "backend/**/*.py": "uvx ruff@0.11.7 format"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.8.3"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@soundtouchjs/audio-worklet": "^1.0.10",
+    "@vueform/slider": "^2.1.10",
+    "@vueuse/core": "^14.2.1",
+    "tone": "^15.1.22",
+    "vue": "^3.5.32"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.5",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.4",
+    "vue-tsc": "^3.2.6"
+  }
+}
