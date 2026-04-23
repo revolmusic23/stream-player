@@ -493,15 +493,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import '../styles/common.css';
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
 .thumbnail {
   width: 100%;
   aspect-ratio: 16 / 9;

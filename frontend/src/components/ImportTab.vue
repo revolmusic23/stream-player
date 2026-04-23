@@ -232,8 +232,6 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 </script>
 
 <style scoped>
-@import '../styles/common.css';
-
 .import-tab {
   display: flex;
   flex-direction: column;

@@ -110,8 +110,6 @@ function formatDuration(seconds: number | null): string {
 </script>
 
 <style scoped>
-@import '../styles/common.css';
-
 .search-panel {
   display: flex;
   flex-direction: column;
