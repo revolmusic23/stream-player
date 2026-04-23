@@ -12,19 +12,23 @@
         placeholder="貼上連結..."
         @keydown.enter="
           (e) => {
-            if (!isYouTubeUrl) fetchTrack()
+            fetchTrack()
             ;(e.target as HTMLInputElement).blur()
           }
         "
       />
-      <button v-if="!isYouTubeUrl" class="btn-primary" :disabled="loading" @click="fetchTrack">
+      <button class="btn-primary" :disabled="loading" @click="fetchTrack">
         {{ loading ? '載入中...' : '載入' }}
       </button>
     </div>
 
-    <template v-if="isYouTubeUrl">
-      <div class="yt-manual">
-        <p class="hint">YouTube 請用以下網站下載 mp3，再拖入下方</p>
+    <p class="hint">單一影片，最長 {{ MAX_DURATION_MIN }} 分鐘；不支援 playlist / 直播</p>
+
+    <p v-show="error" class="error">{{ error }}</p>
+
+    <template v-if="showYtFallback">
+      <div class="yt-fallback">
+        <p class="hint">載入失敗，可用以下網站手動下載 mp3 後拖入下方</p>
         <div class="yt-tools">
           <a
             v-for="tool in ytTools"
@@ -36,22 +40,8 @@
             >{{ tool.name }}</a
           >
         </div>
-        <details class="yt-why">
-          <summary>為什麼 YouTube 要自己下載？</summary>
-          <div class="yt-why-body">
-            <p>
-              YouTube 會擋掉從伺服器發出的下載請求，所以這個工具沒辦法幫你自動下載 YouTube
-              影片。請先用任一工具下載 mp3 到電腦，再拖到下方的上傳區。
-            </p>
-          </div>
-        </details>
       </div>
     </template>
-    <template v-else>
-      <p class="hint">單一影片，最長 {{ MAX_DURATION_MIN }} 分鐘；不支援 playlist / 直播</p>
-    </template>
-
-    <p v-show="error" class="error">{{ error }}</p>
 
     <div class="divider"><span>或</span></div>
 
@@ -92,17 +82,14 @@ const url = ref(
 const urlInput = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const error = ref('')
-
-const allowYtDownload = import.meta.env.VITE_ALLOW_YT_DOWNLOAD === 'true'
+const showYtFallback = ref(false)
 
 function onSelectUrl(selectedUrl: string) {
   url.value = selectedUrl
   urlInput.value?.focus()
 }
 
-const isYouTubeUrl = computed(
-  () => !allowYtDownload && /youtube\.com\/watch|youtu\.be\//.test(url.value.trim()),
-)
+const isYouTubeUrl = computed(() => /youtube\.com\/watch|youtu\.be\//.test(url.value.trim()))
 
 const ytTools = computed(() =>
   YT_DOWNLOADERS.map((d) => ({
@@ -124,6 +111,7 @@ async function fetchTrack() {
   if (!url.value.trim()) return
   loading.value = true
   error.value = ''
+  showYtFallback.value = false
   try {
     const res = await api.downloadTrack(url.value.trim())
     const data = await res.json()
@@ -131,6 +119,7 @@ async function fetchTrack() {
     emit('loaded', { ...data, audio_url: `${API_BASE}${data.audio_url}` })
   } catch (e) {
     error.value = e instanceof Error ? e.message : '未知錯誤'
+    if (isYouTubeUrl.value) showYtFallback.value = true
   } finally {
     loading.value = false
   }
@@ -238,7 +227,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
   gap: 8px;
 }
 
-.yt-manual {
+.yt-fallback {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -248,35 +237,6 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.yt-why {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-
-  summary {
-    cursor: pointer;
-    user-select: none;
-    padding: 4px 0;
-    transition: color 0.1s;
-
-    &:hover {
-      color: var(--text);
-    }
-  }
-}
-
-.yt-why-body {
-  padding: 0 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  line-height: 1.6;
-
-  p {
-    margin: 0;
-  }
 }
 
 .hint-inline {

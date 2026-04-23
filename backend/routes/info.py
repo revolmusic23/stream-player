@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
@@ -5,6 +6,8 @@ from pydantic import BaseModel
 import yt_dlp
 
 from constants import is_allowed_url
+
+PROXY_URL = os.getenv("YT_PROXY_URL")
 
 router = APIRouter()
 
@@ -27,6 +30,7 @@ def get_info(body: InfoRequest):
         "no_warnings": True,
         "skip_download": True,
         "cookiefile": str(COOKIES_FILE) if COOKIES_FILE.exists() else None,
+        **({"proxy": PROXY_URL} if PROXY_URL else {}),
     }
 
     try:

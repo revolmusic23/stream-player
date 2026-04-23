@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 from urllib.parse import quote
@@ -9,6 +10,8 @@ import yt_dlp
 
 from constants import MAX_DURATION_SECONDS, is_allowed_url
 from library_utils import LIBRARY_DIR, find_audio_file
+
+PROXY_URL = os.getenv("YT_PROXY_URL")
 
 
 def _fixup_mpegts_container(path: Path) -> None:
@@ -72,6 +75,7 @@ def download_track(body: DownloadRequest):
         "skip_download": True,
         "noplaylist": True,
         "cookiefile": cookies,
+        **({"proxy": PROXY_URL} if PROXY_URL else {}),
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
@@ -111,6 +115,7 @@ def download_track(body: DownloadRequest):
                 }
             ],
             "cookiefile": cookies,
+            **({"proxy": PROXY_URL} if PROXY_URL else {}),
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
