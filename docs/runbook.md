@@ -29,6 +29,8 @@ sudo systemctl status stream-player         # 狀態、啟動時間、log 摘要
 sudo systemctl cat stream-player            # 看 service 檔內容
 sudo journalctl -u stream-player -f         # 即時 log
 sudo journalctl -u stream-player -n 100     # 最近 100 行 log
+sudo journalctl -u stream-player -n 200 | grep -i error   # 最近錯誤
+sudo journalctl -u stream-player -n 200 | grep '/api/'    # 看特定 API 請求
 ```
 
 **改 `.env` 後一定要 `restart`**，不然 process 還用舊值（`load_dotenv` 只在 startup 讀一次）。
@@ -72,6 +74,40 @@ curl -X POST http://127.0.0.1:8000/api/download \
 
 # health
 curl http://127.0.0.1:8000/api/health
+```
+
+---
+
+## 搜尋失敗排查
+
+症狀：前端搜尋框出現錯誤訊息，或結果空白。
+
+### 1. 看 log 確認錯誤類型
+
+```sh
+sudo journalctl -u stream-player -n 50 | grep -i 'search\|403\|error'
+```
+
+常見錯誤：
+- `403` / `Sign in to confirm`：yt-dlp 被 YouTube 擋，proxy 問題（同下載排查）
+- `ytsearch` 相關錯誤：yt-dlp 版本太舊，先升級再試
+
+### 2. 直接打 API 測試
+
+```sh
+curl "http://127.0.0.1:8000/api/search?q=test"
+```
+
+回傳 `results: []` 但無報錯 → yt-dlp 本身執行成功但沒結果，通常是版本問題。
+回傳 4xx / 5xx → 看 log 裡的完整 traceback。
+
+### 3. 升級 yt-dlp（搜尋和下載共用）
+
+```sh
+cd ~/stream-player/backend
+source venv/bin/activate
+pip install -U yt-dlp
+sudo systemctl restart stream-player
 ```
 
 ---
