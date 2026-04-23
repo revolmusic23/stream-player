@@ -16,3 +16,4 @@ frontend/dist/
 .env.*.local
 .claude/
 CLAUDE.md
+.husky/post-commit
