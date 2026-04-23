@@ -3,6 +3,9 @@ import shared from '@shared/constants.json'
 export const MAX_DURATION_MIN = shared.max_duration_min
 export const UPLOAD_MAX_MB = shared.upload_max_mb
 
+export const GITHUB_REPO = 'https://github.com/revolmusic23/stream-player'
+export const EMAIL = 'revolcc@proton.me'
+
 export interface YtDownloader {
   name: string
   // 支援帶入 URL 用 {url} 佔位；不支援則省略，使用者自行貼上

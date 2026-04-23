@@ -9,7 +9,7 @@ export interface Track {
   mixUploadPromise?: Promise<void>
 }
 
-export type TabKey = 'import' | 'player'
+export type TabKey = 'import' | 'player' | 'info'
 
 export interface Tab {
   key: TabKey
