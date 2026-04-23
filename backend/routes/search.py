@@ -11,11 +11,25 @@ def search(q: str = Query(..., min_length=1)):
         "no_warnings": True,
         "extract_flat": True,
     }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"ytsearch30:{q}", download=False)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    info = None
+    last_error: Exception | None = None
+    for _ in range(2):
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"ytsearch30:{q}", download=False)
+            break
+        except Exception as e:
+            last_error = e
+            if "403" not in str(e):
+                break
+
+    if info is None:
+        raw = str(last_error)
+        if "403" in raw or "429" in raw:
+            friendly = "YouTube 暫時拒絕請求，請稍後再試"
+        else:
+            friendly = "搜尋失敗，請稍後再試"
+        raise HTTPException(status_code=400, detail=f"{friendly}\n（{raw}）")
 
     results = []
     for entry in info.get("entries", []):
