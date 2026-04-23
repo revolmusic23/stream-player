@@ -38,10 +38,12 @@ export function useStems(opts: StemsOptions) {
   const stemsZipUrl = computed(() => (track.value ? api.stemsZipUrl(track.value.id) : ''))
   const stemsError = ref('')
   const stemsProgress = ref<number | null>(null)
+  const stemsLoading = ref(false)
   const stems = ref<Stem[]>([])
   const stemsActive = ref(false)
   const stemsPlaying = ref(false)
   const isLocalStems = ref(false)
+  let pendingStemUrls: Record<string, string> | null = null
   let stemsOffset = 0
   let stemsStartCtxTime = 0
   let stemMasterGain: Tone.Gain | null = null
@@ -67,7 +69,7 @@ export function useStems(opts: StemsOptions) {
         stemsStatus.value = data.status
         if (data.status === 'ready') {
           stemsProgress.value = null
-          await loadStems(data.stems)
+          pendingStemUrls = data.stems
         } else if (data.status === 'error') {
           stemsError.value = data.detail || ''
         } else if (data.status === 'canceled') {
@@ -102,7 +104,7 @@ export function useStems(opts: StemsOptions) {
       if (data.status === 'processing') {
         schedulePoll(id)
       } else if (data.status === 'ready') {
-        await loadStems(data.stems)
+        pendingStemUrls = data.stems
       }
     } catch (e) {
       stemsStatus.value = 'error'
@@ -261,7 +263,7 @@ export function useStems(opts: StemsOptions) {
     if (stemsPlaying.value) startStemSources(t)
   }
 
-  function toggleStemsMode() {
+  async function toggleStemsMode() {
     if (stemsActive.value) {
       const wasPlaying = stemsPlaying.value
       pauseStems()
@@ -271,6 +273,15 @@ export function useStems(opts: StemsOptions) {
         if (wasPlaying) audioEl.value.play()
       }
     } else {
+      if (pendingStemUrls) {
+        stemsLoading.value = true
+        try {
+          await loadStems(pendingStemUrls)
+          pendingStemUrls = null
+        } finally {
+          stemsLoading.value = false
+        }
+      }
       const wasPlaying = audioEl.value ? !audioEl.value.paused : false
       stemsActive.value = true
       if (audioEl.value) {
@@ -337,6 +348,7 @@ export function useStems(opts: StemsOptions) {
     pauseStems()
     stemsActive.value = false
     isLocalStems.value = false
+    pendingStemUrls = null
     if (audioEl.value) audioEl.value.muted = false
     for (const s of stems.value) {
       try {
@@ -364,7 +376,7 @@ export function useStems(opts: StemsOptions) {
       const data = await fetchStemsStatus(id)
       if (data.status === 'ready') {
         stemsStatus.value = 'ready'
-        await loadStems(data.stems)
+        pendingStemUrls = data.stems
       } else if (data.status === 'processing') {
         stemsStatus.value = 'processing'
         schedulePoll(id)
@@ -396,6 +408,7 @@ export function useStems(opts: StemsOptions) {
     stemsZipUrl,
     stemsError,
     stemsProgress,
+    stemsLoading,
     stems,
     stemsActive,
     stemsPlaying,

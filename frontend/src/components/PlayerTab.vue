@@ -167,8 +167,13 @@
         </template>
         <span v-else-if="stemsStatus === 'canceled'" class="time-label error-text">已取消</span>
         <template v-else-if="stemsStatus === 'ready'">
-          <button class="confirm-btn" :class="{ active: stemsActive }" @click="handleToggleStems">
-            {{ stemsActive ? '關閉分軌' : '啟用分軌' }}
+          <button
+            class="confirm-btn"
+            :class="{ active: stemsActive }"
+            :disabled="stemsLoading"
+            @click="handleToggleStems"
+          >
+            {{ stemsLoading ? '載入中...' : stemsActive ? '關閉分軌' : '啟用分軌' }}
           </button>
           <a
             v-if="!track?.localStemUrls"
@@ -303,6 +308,7 @@ const {
   stemsZipUrl,
   stemsError,
   stemsProgress,
+  stemsLoading,
   stems,
   stemsActive,
   stemsPlaying,
@@ -383,9 +389,9 @@ function setRate(rate: number) {
   }
 }
 
-function handleToggleStems() {
+async function handleToggleStems() {
   const willActivate = !stemsActive.value
-  toggleStemsMode()
+  await toggleStemsMode()
   setSoundTouchPlaybackRate(willActivate ? playbackRate.value : 1)
 }
 
