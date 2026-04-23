@@ -21,7 +21,7 @@ REPLICATE_MODEL = (
     "ryan5453/demucs:53191dee0efbfc3cbfdbab276b0dcce930705e9a4d1bb9fe1e2a7cdd33d9ca82"
 )
 DEMUCS_MODEL = "htdemucs_6s"
-STEMS_MP3_BITRATE = 192
+STEMS_MP3_BITRATE = 160
 POLL_INTERVAL_SECONDS = 2
 
 _processing: set[str] = set()
