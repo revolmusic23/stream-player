@@ -86,7 +86,9 @@ const emit = defineEmits<{
 
 const searchPanel = ref<InstanceType<typeof SearchPanel> | null>(null)
 
-const url = ref(import.meta.env.DEV ? 'https://www.youtube.com/watch?v=oZpYEEcvu5I' : '')
+const url = ref(
+  import.meta.env.MODE === 'development' ? 'https://www.youtube.com/watch?v=oZpYEEcvu5I' : '',
+)
 const urlInput = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const error = ref('')
