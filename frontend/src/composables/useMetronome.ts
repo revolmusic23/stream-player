@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import * as Tone from 'tone'
-import { API_BASE } from '../api'
+import { api } from '../api'
 
 const DEFAULT_BPM = 120
 
@@ -112,11 +112,7 @@ export function useMetronome(audioEl: Ref<HTMLAudioElement | null>) {
     bpmLoading.value = true
     try {
       if (mixUploadPromise) await mixUploadPromise
-      const res = await fetch(`${API_BASE}/api/bpm`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ video_id: trackId }),
-      })
+      const res = await api.bpm(trackId)
       if (!res.ok) throw new Error('偵測失敗')
       const data = await res.json()
       bpm.value = Math.round(data.bpm)

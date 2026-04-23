@@ -2,7 +2,7 @@ import { ref, computed, markRaw } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
 import * as Tone from 'tone'
 import type { SoundTouchWorkletNode } from './useTranspose'
-import { API_BASE } from '../api'
+import { api, API_BASE } from '../api'
 import type { Stem, StemsStatus, StemsResponse, Track } from '../types'
 
 function getAudioCtx(): AudioContext {
@@ -35,9 +35,7 @@ export function useStems(opts: StemsOptions) {
   } = opts
 
   const stemsStatus = ref<StemsStatus>('not_started')
-  const stemsZipUrl = computed(() =>
-    track.value ? `${API_BASE}/api/stems/${track.value.id}/zip` : '',
-  )
+  const stemsZipUrl = computed(() => (track.value ? api.stemsZipUrl(track.value.id) : ''))
   const stemsError = ref('')
   const stemsProgress = ref<number | null>(null)
   const stems = ref<Stem[]>([])
@@ -55,7 +53,7 @@ export function useStems(opts: StemsOptions) {
   }
 
   async function fetchStemsStatus(id: string): Promise<StemsResponse> {
-    const res = await fetch(`${API_BASE}/api/stems/${id}`)
+    const res = await api.stemsStatus(id)
     return res.json()
   }
 
@@ -98,7 +96,7 @@ export function useStems(opts: StemsOptions) {
     const id = track.value.id
     stemsError.value = ''
     try {
-      const res = await fetch(`${API_BASE}/api/stems/${id}`, { method: 'POST' })
+      const res = await api.stemsStart(id)
       const data = await res.json()
       stemsStatus.value = data.status
       if (data.status === 'processing') {
@@ -116,7 +114,7 @@ export function useStems(opts: StemsOptions) {
     if (!track.value) return
     const id = track.value.id
     try {
-      await fetch(`${API_BASE}/api/stems/${id}`, { method: 'DELETE' })
+      await api.stemsCancel(id)
     } catch {}
   }
 

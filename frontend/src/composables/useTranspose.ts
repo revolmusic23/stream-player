@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import * as Tone from 'tone'
-import { API_BASE } from '../api'
+import { api } from '../api'
 
 let workletRegistered = false
 
@@ -80,11 +80,7 @@ export function useTranspose(audioEl: Ref<HTMLAudioElement | null>) {
     keyLoading.value = true
     try {
       if (mixUploadPromise) await mixUploadPromise
-      const res = await fetch(`${API_BASE}/api/key`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ video_id: trackId }),
-      })
+      const res = await api.key(trackId)
       if (!res.ok) throw new Error('偵測失敗')
       const data = await res.json()
       tonic.value = data.tonic

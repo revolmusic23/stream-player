@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { API_BASE } from '../api'
+import { api } from '../api'
 
 const emit = defineEmits<{
   selectUrl: [url: string]
@@ -78,7 +78,7 @@ async function doSearch() {
   results.value = []
   visibleCount.value = 10
   try {
-    const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query.value.trim())}`)
+    const res = await api.search(query.value.trim())
     const data = await res.json()
     if (!res.ok) throw new Error(data.detail || '搜尋失敗')
     results.value = data

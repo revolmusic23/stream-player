@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { API_BASE } from '../api'
+import { api, API_BASE } from '../api'
 import type { Track } from '../types'
 import { MAX_DURATION_MIN, UPLOAD_MAX_MB, YT_DOWNLOADERS } from '../constants'
 import { uploadMixedStems } from '../utils/audioMix'
@@ -123,11 +123,7 @@ async function fetchTrack() {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetch(`${API_BASE}/api/download`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: url.value.trim() }),
-    })
+    const res = await api.downloadTrack(url.value.trim())
     const data = await res.json()
     if (!res.ok) throw new Error(data.detail || '無法下載')
     emit('loaded', { ...data, audio_url: `${API_BASE}${data.audio_url}` })
@@ -156,10 +152,7 @@ async function loadLocalFile(file: File) {
     const videoId = `local-${Date.now()}`
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${API_BASE}/api/upload?video_id=${videoId}`, {
-      method: 'POST',
-      body: form,
-    })
+    const res = await api.upload(videoId, form)
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
       throw new Error(data.detail || '上傳失敗')

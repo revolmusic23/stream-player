@@ -1,4 +1,4 @@
-import { API_BASE } from '../api'
+import { api } from '../api'
 
 const WAV_HEADER_SIZE = 44
 const WAV_FMT_CHUNK_SIZE = 16
@@ -36,10 +36,7 @@ export async function uploadMixedStems(files: File[], videoId: string): Promise<
   const wav = await mixStemsToWavBlob(files)
   const form = new FormData()
   form.append('file', new File([wav], 'mix.wav', { type: 'audio/wav' }))
-  const res = await fetch(`${API_BASE}/api/upload?video_id=${videoId}`, {
-    method: 'POST',
-    body: form,
-  })
+  const res = await api.upload(videoId, form)
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.detail || `upload failed: ${res.status}`)

@@ -22,7 +22,7 @@
         <a
           v-if="track"
           class="help-btn"
-          :href="`${API_BASE}/api/download/${track.id}/file?filename=${encodeURIComponent(track.title ?? track.id)}`"
+          :href="api.downloadFileUrl(track.id, track.title ?? track.id)"
           title="下載原曲"
           >↓</a
         >
@@ -244,7 +244,7 @@ import { ref, computed, watch, toRef, onUnmounted } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import AppSlider from './AppSlider.vue'
 import '@vueform/slider/themes/default.css'
-import { API_BASE } from '../api'
+import { api } from '../api'
 import { type Track } from '../types'
 import { useMetronome } from '../composables/useMetronome'
 import { useTranspose } from '../composables/useTranspose'
