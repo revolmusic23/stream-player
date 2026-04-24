@@ -22,4 +22,5 @@ export const YT_DOWNLOADERS: YtDownloader[] = [
     name: '4K Video Downloader',
     urlTemplate: 'https://www.4kdownload.com/products/videodownloader',
   },
+  { name: 'yt-dlp', urlTemplate: 'https://github.com/yt-dlp/yt-dlp' },
 ]
